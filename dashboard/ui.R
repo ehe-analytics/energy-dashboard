@@ -23,7 +23,7 @@ ui <- navbarPage(
       left = 'auto', right = 20, bottom = 'auto', width = 250, height = 'auto', 
       
       h3('Map Tools', icon('map')), 
-      selectizeInput('mapdata_data', label = NULL, choices = c('Select data type' = '', unique(all_data$data))), 
+      selectizeInput('mapdata_name', label = NULL, choices = c('Select data type' = '', unique(all_data$data_name))), 
       selectizeInput('mapdata_cat', label = NULL, choices = c('Select data category' = '')),
       selectizeInput('mapdata_series', label = NULL, choices = c('Select data series' = '')), 
       radioButtons('mapdata_smry', label = NULL, choices = c("Total quantity", "Per million people"), selected = "Per million people")
@@ -46,7 +46,7 @@ ui <- navbarPage(
         tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'), 
         tags$h5("Carbon dioxide emissions in the EIA databsae are reported by five different sectors: ", 
                 "commercial, electric power, industrial, residential, transportation, and from all sectors combined."), 
-        # selectizeInput('smryplot_data', label = NULL, choices = c("Select data type" = '', unique(all_data$data))), 
+        # selectizeInput('smryplot_data', label = NULL, choices = c("Select data type" = '', unique(all_data$data_name))), 
         # selectizeInput('smryplot_cat', label = NULL, choices = c('Select data category' = '')), 
         selectizeInput('smryplot_state', label = NULL, choices = c('Select state' = '', unique(all_data$state))), 
         ggiraphOutput('smryplot_co2', width = '100%', height = '600px')

@@ -7,24 +7,30 @@ server <- function(input, output, session) {
   
   # Filter data for the DATA type chosen
   observe({
-    rvs$mapdata_data <- all_data %>% filter(data == input$mapdata_data)
+    req(input$mapdata_name)
+    
+    print(names(all_data))
+
+    rvs$mapdata_name <- all_data %>% filter(data_name == input$mapdata_name)
+    print(rvs$mapdata_name)
   })
   
   # update CATEGORY dropdown choices based on selected data type
   observe({
-    req(input$mapdata_data)
-    req(rvs$mapdata_data)
-    
-    choices  <-  unique(rvs$mapdata_data$category)
+    req(rvs$mapdata_name)
+    req(input$mapdata_name)
+
+    choices  <-  unique(rvs$mapdata_name$category)
     selected <- isolate(input$mapdata_cat)
     updateSelectizeInput(session, 'mapdata_cat', selected = selected, choices = choices, server = T)
   })
   
   # Filter data for the CATEGORY type chosen
   observe({ 
+    req(rvs$mapdata_name)
     req(input$mapdata_cat)
     
-    rvs$mapdata_cat <- rvs$mapdata_data %>% 
+    rvs$mapdata_cat <- rvs$mapdata_name %>% 
       filter(category == input$mapdata_cat)
   })
   
@@ -32,7 +38,7 @@ server <- function(input, output, session) {
   observe({
     req(input$mapdata_cat)
     req(rvs$mapdata_cat)
-    
+
     choices  <-  unique(rvs$mapdata_cat$series)
     selected <- isolate(input$mapdata_series)
     updateSelectizeInput(session, 'mapdata_series', selected = selected, choices = choices, server = T)
@@ -113,7 +119,7 @@ server <- function(input, output, session) {
     req(input$smryplot_state)
     
     plotdata <- all_data %>% 
-      filter(data == 'CO2 emissions') %>% 
+      filter(data_name == 'CO2 emissions') %>% 
       filter(state == input$smryplot_state)
     
     plt <- ggplot(plotdata, aes(x = period, y = value, color = series)) + 

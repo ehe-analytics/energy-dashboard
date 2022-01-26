@@ -21,7 +21,7 @@ write_rds(state_pop, 'data/state-population.rds')
 co2_emissions <- eia_data %>% 
   filter(series_id %in% (sids_df %>% filter(category_id %in% c(2251664:2251669)) %>% pull(series_id))) %>% 
   separate(name, c('series', 'category', 'state'), sep = ', ') %>% 
-  mutate(data = 'CO2 emissions', 
+  mutate(data_name = 'CO2 emissions', 
          category = str_to_sentence(category), 
          series = str_replace(series, ' carbon dioxide emissions', ''), 
          state_abb = str_replace(iso3166, 'USA-', '')) %>% 
