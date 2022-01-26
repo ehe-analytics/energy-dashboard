@@ -3,11 +3,16 @@
 
 library(tidyverse)
 
-api_link <- "http://api.eia.gov/series/"
-api_key <- "api_key=Hrw4tdefn3akWomd049w15st6KDUn3WLw6VAcCuY"
+
+api_key <- paste0("api_key=", read.delim2('data/eia-api-key.txt', header=F))
+
+# update_data <- function(sid) { 
+#   api_link <- "http://api.eia.gov/updates/"
+#   
+# }
 
 dl_data <- function(sid) { 
-  
+  api_link <- "http://api.eia.gov/series/"
   link <- paste0(api_link, "?", api_key, "&", "series_id=", sid)
  
   tryCatch({

@@ -6,8 +6,9 @@ library(rvest)
 library(magrittr)
 library(dplyr)
 
+
 api_link <- "http://api.eia.gov/category/"
-api_key <- "api_key=Hrw4tdefn3akWomd049w15st6KDUn3WLw6VAcCuY"
+api_key <- paste0("api_key=", read.delim2('data/eia-api-key.txt', header=F))
 
 # Query generator
 generate_query <- function(link, ...) { 

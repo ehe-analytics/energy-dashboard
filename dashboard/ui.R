@@ -62,6 +62,7 @@ ui <- navbarPage(
   tabPanel(
     'About', icon = icon('info'), 
     tags$h3("TEMPORARY PLACEHOLDER..."),
-    tags$p('Created by a team of air quality junkies and data science nerds at Environmental Health & Engineering, Inc.')
+    tags$p('Created by a team of air quality junkies and data science nerds at Environmental Health & Engineering, Inc.'), 
+    tags$p('The code for this dashboard is available on our', tags$a('Github', href='https://github.com/ehe-analytics/energy-dashboard'), 'page.')
   )
 )

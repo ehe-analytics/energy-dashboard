@@ -1,5 +1,6 @@
 # csv data files
 data/*.csv
+data/eia-api-key.txt
 
 # History files
 .Rhistory
