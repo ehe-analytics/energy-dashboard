@@ -1,0 +1,67 @@
+ui <- navbarPage(
+  'EH&E Energy Dashboard', 
+  id = 'nav', 
+  
+  ## INTERACTIVE MAP ---------------------------------------------------------
+  tabPanel(
+    'Interactive Map', icon = icon('map'), 
+    
+    # useShinyjs(), 
+    # includeScript('script.js'),
+    
+    div(
+      class = 'outer',
+      tags$head(includeCSS('styles.css')),
+      
+      mapdeckOutput('map', width = '100%', height = '100%')
+    ),
+    
+    
+    #### Map Navigation Panel ####
+    absolutePanel(
+      id = 'controls', draggable = T, 
+      left = 'auto', right = 20, bottom = 'auto', width = 250, height = 'auto', 
+      
+      h3('Map Tools', icon('map')), 
+      selectizeInput('mapdata_data', label = NULL, choices = c('Select data type' = '', unique(all_data$data))), 
+      selectizeInput('mapdata_cat', label = NULL, choices = c('Select data category' = '')),
+      selectizeInput('mapdata_series', label = NULL, choices = c('Select data series' = '')), 
+      radioButtons('mapdata_smry', label = NULL, choices = c("Total quantity", "Per million people"), selected = "Per million people")
+    )
+  
+  ), 
+  
+  ## SUMMARY CHARTS ----------------------------------------------------------
+  tabPanel(
+    'Summary Charts', icon = icon('chart-bar'),
+    tags$h4("Plots for each of the data categories are provided in the tabs below. ", 
+            "Select the appropriate tab and select options therein for the plot to be generated. ", 
+            "Plots can be downloaded by clicking on the download button that appears on the far top right corner when hovering above the plot."), 
+    tags$br(), 
+    
+    tabsetPanel(
+      id = 'smrytabs', 
+      tabPanel(
+        'CO2 Emissions', 
+        tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'), 
+        tags$h5("Carbon dioxide emissions in the EIA databsae are reported by five different sectors: ", 
+                "commercial, electric power, industrial, residential, transportation, and from all sectors combined."), 
+        # selectizeInput('smryplot_data', label = NULL, choices = c("Select data type" = '', unique(all_data$data))), 
+        # selectizeInput('smryplot_cat', label = NULL, choices = c('Select data category' = '')), 
+        selectizeInput('smryplot_state', label = NULL, choices = c('Select state' = '', unique(all_data$state))), 
+        ggiraphOutput('smryplot_co2', width = '100%', height = '600px')
+      ), 
+      
+      tabPanel(
+        'Tab 2'
+      )
+    )
+  ), 
+  
+  ## ABOUT ---------------------------------------------------------------------
+  tabPanel(
+    'About', icon = icon('info'), 
+    tags$h3("TEMPORARY PLACEHOLDER..."),
+    tags$p('Created by a team of air quality junkies and data science nerds at Environmental Health & Engineering, Inc.')
+  )
+)
