@@ -8,11 +8,8 @@ server <- function(input, output, session) {
   # Filter data for the DATA type chosen
   observe({
     req(input$mapdata_name)
-    
-    print(names(all_data))
 
     rvs$mapdata_name <- all_data %>% filter(data_name == input$mapdata_name)
-    print(rvs$mapdata_name)
   })
   
   # update CATEGORY dropdown choices based on selected data type

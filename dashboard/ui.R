@@ -35,8 +35,8 @@ ui <- navbarPage(
   tabPanel(
     'Summary Charts', icon = icon('chart-bar'),
     tags$h4("Plots for each of the data categories are provided in the tabs below. ", 
-            "Select the appropriate tab and select options therein for the plot to be generated. ", 
-            "Plots can be downloaded by clicking on the download button that appears on the far top right corner when hovering above the plot."), 
+            "Select the appropriate tab and select options therein for the plot to be generated. "), 
+    tags$h4("Plots can be downloaded by clicking on the download button that appears on the far top right corner when hovering above the plot."), 
     tags$br(), 
     
     tabsetPanel(

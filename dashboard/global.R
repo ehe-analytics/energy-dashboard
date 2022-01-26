@@ -2,6 +2,7 @@ library(shiny)
 
 library(here)
 library(tidyverse)
+library(sf)
 
 library(mapdeck)
 library(geomtextpath)
