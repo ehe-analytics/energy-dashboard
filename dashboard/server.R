@@ -67,22 +67,22 @@ server <- function(input, output, session) {
     # Data for mapping
     mapdata <- rvs$mapdata_series %>% 
       filter(period == max(period)) %>% 
-      left_join(sf_states, by = 'state_abb') %>% 
-      left_join(state_pop, by = 'geoid') %>% 
-      mutate(value_by_pop = value*1e6/population)
+      left_join(sf_states, by = 'state_abb')
+      # left_join(state_pop, by = 'geoid') %>% 
+      # mutate(value_by_pop = value*1e6/population)
     sf::st_geometry(mapdata) <- mapdata$geometry
     
     # Variables
-    if (input$mapdata_smry == "Per million people") {
-      fill_colour <- 'value_by_pop' 
+    if (input$mapdata_smry == "Per capita") {
+      fill_colour <- 'per_capita' 
       mapdata <- mapdata %>% 
-        mutate(tooltip = paste(round(value_by_pop, 1), unitsshort, 'per milion people in', unique(period)))
-      legend_options <- list(title = paste0(unique(mapdata$unitsshort), '\n', 'per million people'))
+        mutate(tooltip = paste(round(per_capita, 1), per_capita_units, 'per capita in', unique(period)))
+      legend_options <- list(title = paste0(unique(mapdata$per_capita_units)))
     } else if (input$mapdata_smry == 'Total quantity') {
       fill_colour <- 'value'
       mapdata <- mapdata %>% 
-        mutate(tooltip = paste(round(value, 1), unitsshort, 'in', unique(period)))
-      legend_options <- list(title = paste0('Total ', unique(mapdata$unitsshort)))
+        mutate(tooltip = paste(round(value, 1), units, 'in', unique(period)))
+      legend_options <- list(title = paste0('Total ', unique(mapdata$units)))
     } else {
       stop('This option does not exist.')
     }
@@ -112,18 +112,41 @@ server <- function(input, output, session) {
   
   ## SUMMARY CHARTS-------------------------------------------------------------
   
+  observe({ 
+    req(input$smryplot_trendby) 
+    
+    choices <- if (input$smryplot_trendby == 'Fuel') {
+      unique(all_data$category)
+    } else if (input$smryplot_trendby == 'Sector') { 
+      unique(all_data$series)
+    }
+    selected <- isolate(input$smryplot_viewby)
+    updateSelectizeInput(session, 'smryplot_viewby', selected = selected, choices = choices, server = T)
+  })
+  
   output$smryplot_co2 <- renderGirafe({
+    req(input$smryplot_trendby)
+    req(input$smryplot_viewby)
     req(input$smryplot_state)
     
+    col_to_filter <- case_when(
+      input$smryplot_trendby == 'Fuel' ~ 'category', 
+      input$smryplot_trendby == 'Sector' ~ 'series') 
+    
+    col_to_group <- case_when(
+      input$smryplot_trendby == 'Fuel' ~ 'series', 
+      input$smryplot_trendby == 'Sector' ~ 'category') 
+
     plotdata <- all_data %>% 
       filter(data_name == 'CO2 emissions') %>% 
-      filter(state == input$smryplot_state)
-    
-    plt <- ggplot(plotdata, aes(x = period, y = value, color = series)) + 
-      geom_point_interactive(aes(tooltip = paste(round(value, 1), unitsshort), data_id = series), alpha = 0.6) + 
-      geom_textsmooth(aes(label = series), method = 'loess', formula = y ~ x, se = F, linewidth = 1, span = 0.3, hjust = 'auto') +
+      filter(.data[[col_to_filter]] == input$smryplot_viewby) %>% 
+      filter(state == input$smryplot_state) 
+      
+    plt <- ggplot(plotdata, aes(x = period, y = value, color = .data[[col_to_group]] )) + 
+      geom_point_interactive(aes(tooltip = paste(round(value, 1), unitsshort), data_id = .data[[col_to_group]] ), alpha = 0.6) + 
+      geom_textsmooth(aes(label = .data[[col_to_group]] ), method = 'loess', formula = y ~ x, se = F, linewidth = 1, span = 0.3, hjust = 'auto') +
       labs(x = 'Year', y = 'CO2 (million metric tons)', 
-           title = 'CO2 Emissions By Sector', 
+           title = paste0('CO2 Emissions For ', input$smryplot_viewby, ' Usage'), 
            subtitle = input$smryplot_state) +
       theme_bw(base_family = 'Arial') + 
       theme(legend.position = 'none', 
