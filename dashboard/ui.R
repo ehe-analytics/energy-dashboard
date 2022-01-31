@@ -23,7 +23,7 @@ ui <- navbarPage(
       left = 'auto', right = 20, bottom = 'auto', width = 250, height = 'auto', 
       
       h3('Map Tools', icon('map')), 
-      selectizeInput('mapdata_name', label = NULL, choices = c('Select data type' = '', unique(all_data$data_name))), 
+      selectizeInput('mapdata_name', label = NULL, choices = c('Select data type' = '', unique(co2_emissions$data_name))), 
       selectizeInput('mapdata_cat', label = NULL, choices = c('Select data category' = '')),
       selectizeInput('mapdata_series', label = NULL, choices = c('Select data series' = '')), 
       radioButtons('mapdata_smry', label = NULL, choices = c("Per capita", "Total quantity"), selected = "Per capita", inline = T)
@@ -41,18 +41,18 @@ ui <- navbarPage(
     
     tabsetPanel(
       id = 'smrytabs', 
-      tabPanel(
-        'CO2 Emissions', 
-        tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'), 
-        tags$h5("Carbon dioxide emissions in the EIA databsae are reported by five different sectors: ", 
-                "commercial, electric power, industrial, residential, transportation, and from all sectors combined."), 
-        # selectizeInput('smryplot_data', label = NULL, choices = c("Select data type" = '', unique(all_data$data_name))), 
-        # selectizeInput('smryplot_cat', label = NULL, choices = c('Select data category' = '')),
-        column(3, selectizeInput('smryplot_trendby', label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
-        column(3, selectizeInput('smryplot_viewby', label = NULL, choices = c('Select filter' = ''))), 
-        column(3, selectizeInput('smryplot_state', label = NULL, choices = c('Select state' = '', unique(all_data$state)))), 
-        ggiraphOutput('smryplot_co2', width = '100%', height = '600px')
-      ), 
+      
+      co2EmissionsUI('co2_emissions', states = unique(co2_emissions$state)),
+      # tabPanel(
+      #   'CO2 Emissions',
+      #   tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'),
+      #   tags$h5("Carbon dioxide emissions in the EIA databsae are reported by five different sectors: ",
+      #           "commercial, electric power, industrial, residential, transportation, and from all sectors combined."),
+      #   column(3, selectizeInput('smryplot_trendby', label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
+      #   column(3, selectizeInput('smryplot_viewby', label = NULL, choices = c('Select filter' = ''))),
+      #   column(3, selectizeInput('smryplot_state', label = NULL, choices = c('Select state' = '', unique(co2_emissions$state)))),
+      #   ggiraphOutput('smryplot_co2', width = '100%', height = '600px')
+      # ),
       
       tabPanel(
         'Tab 2'
