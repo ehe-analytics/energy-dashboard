@@ -42,7 +42,7 @@ ui <- navbarPage(
     tabsetPanel(
       id = 'smrytabs', 
       
-      co2EmissionsUI('co2_emissions', states = unique(co2_emissions$state)),
+      co2EmissionsUI('co2_emissions'),
       # tabPanel(
       #   'CO2 Emissions',
       #   tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'),

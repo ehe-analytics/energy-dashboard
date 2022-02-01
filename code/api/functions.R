@@ -21,6 +21,20 @@ dl_data <- function(query) {
     jsonlite::fromJSON()
 }
 
+dl_cats <- function(cid) { 
+  api_link <- "http://api.eia.gov/category/"
+  cidq <- paste0('category_id=', cid)
+  query <- generate_query(api_link, cidq)
+  
+  if (cid == 0) {
+    message('Incorrect category id. Category id cannot be 0.')
+    return()
+  }
+  
+  out <- dl_data(query)
+  return(out)
+}
+
 dl_sids <- function(cid, deep = F) { 
   # Returns all **series ids** for the category being queried 
   deepq <- if (deep) 'deep=true' else 'deep=false'
@@ -32,7 +46,7 @@ dl_sids <- function(cid, deep = F) {
   query <- generate_query(api_link, cidq, deepq, rowq)
   
   if (cid == 0) {
-    message('Incorrect category id. Category id cannot be 0.', )
+    message('Incorrect category id. Category id cannot be 0.')
     return()
   }
   

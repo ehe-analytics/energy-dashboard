@@ -121,7 +121,7 @@ server <- function(input, output, session) {
   
   ## SUMMARY CHARTS-------------------------------------------------------------
   
-  co2EmissionsServer('co2_emissions', co2_emissions)
+  co2EmissionsServer('co2_emissions')
   # observe({
   #   req(input$smryplot_trendby)
   # 

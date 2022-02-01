@@ -1,5 +1,5 @@
 # Summary tab CO2 emissions module
-
+co2_emissions <- readr::read_rds(here::here('data/co2_emissions.rds'))
 
 #' Inputs for CO2 summary plots interface
 #' 
@@ -12,7 +12,7 @@
 #'   \item{smryplot_state}{list of states/regions}
 #'   \item{smryplot}{CO2 emissions summary plot output based on the parameters provided by user}
 #' } takes three user inputs: trend_by, view_by, and state
-co2EmissionsUI <- function(id, states) { 
+co2EmissionsUI <- function(id) { 
   ns <- NS(id)
   
   tabPanel(
@@ -24,7 +24,7 @@ co2EmissionsUI <- function(id, states) {
     # inputs
     column(3, selectizeInput(ns('smryplot_trendby'), label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
     column(3, selectizeInput(ns('smryplot_viewby'), label = NULL, choices = c('Select filter' = ''))), 
-    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', states))), 
+    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', unique(co2_emissions$state)))), 
     
     # output
     ggiraphOutput(ns('smryplot'), width = '100%', height = '600px')
@@ -33,7 +33,7 @@ co2EmissionsUI <- function(id, states) {
 
 
 #' Server-side processing for updating inputs and generating co2 emissions summary plot
-co2EmissionsServer <- function(id, dat) { 
+co2EmissionsServer <- function(id) { 
 
   moduleServer(
     id, 
@@ -44,9 +44,9 @@ co2EmissionsServer <- function(id, dat) {
         req(input$smryplot_trendby) 
 
         choices <- if (input$smryplot_trendby == 'Fuel') {
-          unique(dat$category)
+          unique(co2_emissions$category)
         } else if (input$smryplot_trendby == 'Sector') { 
-          unique(dat$series)
+          unique(co2_emissions$series)
         }
         selected <- isolate(input$smryplot_viewby)
         updateSelectizeInput(session, 'smryplot_viewby', selected = selected, choices = choices, server = T)
@@ -67,7 +67,7 @@ co2EmissionsServer <- function(id, dat) {
           input$smryplot_trendby == 'Fuel' ~ 'series', 
           input$smryplot_trendby == 'Sector' ~ 'category') 
         
-        plotdata <- dat %>%
+        plotdata <- co2_emissions %>%
           filter(data_name == 'CO2 emissions',
                  .data[[col_to_filter]] == input$smryplot_viewby, 
                  state == input$smryplot_state) %>% 
