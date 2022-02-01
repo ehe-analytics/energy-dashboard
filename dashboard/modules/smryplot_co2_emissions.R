@@ -22,9 +22,9 @@ co2EmissionsUI <- function(id, states) {
             "commercial, electric power, industrial, residential, transportation, and from all sectors combined."), 
     
     # inputs
+    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', states))), 
     column(3, selectizeInput(ns('smryplot_trendby'), label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
     column(3, selectizeInput(ns('smryplot_viewby'), label = NULL, choices = c('Select filter' = ''))), 
-    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', states))), 
     
     # output
     ggiraphOutput(ns('smryplot'), width = '100%', height = '600px')

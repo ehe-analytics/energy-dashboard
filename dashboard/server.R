@@ -67,8 +67,7 @@ server <- function(input, output, session) {
     # Data for mapping
     mapdata <- rvs$mapdata_series %>% 
       filter(period == max(period)) %>% 
-      left_join(sf_states, by = 'state_abb') 
-      
+      right_join(sf_states, by = c('state_abb', 'geoid'))
     sf::st_geometry(mapdata) <- mapdata$geometry
     
     # Variables
