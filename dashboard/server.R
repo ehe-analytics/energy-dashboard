@@ -120,64 +120,6 @@ server <- function(input, output, session) {
   
   
   ## SUMMARY CHARTS-------------------------------------------------------------
-  
-  co2EmissionsServer('co2_emissions')
-  # observe({
-  #   req(input$smryplot_trendby)
-  # 
-  #   choices <- if (input$smryplot_trendby == 'Fuel') {
-  #     unique(co2_emissions$category)
-  #   } else if (input$smryplot_trendby == 'Sector') {
-  #     unique(co2_emissions$series)
-  #   }
-  #   selected <- isolate(input$smryplot_viewby)
-  #   updateSelectizeInput(session, 'smryplot_viewby', selected = selected, choices = choices, server = T)
-  # })
-  # 
-  # output$smryplot_co2 <- renderGirafe({
-  #   req(input$smryplot_trendby)
-  #   req(input$smryplot_viewby)
-  #   req(input$smryplot_state)
-  # 
-  #   col_to_filter <- case_when(
-  #     input$smryplot_trendby == 'Fuel' ~ 'category',
-  #     input$smryplot_trendby == 'Sector' ~ 'series')
-  # 
-  #   col_to_group <- case_when(
-  #     input$smryplot_trendby == 'Fuel' ~ 'series',
-  #     input$smryplot_trendby == 'Sector' ~ 'category')
-  # 
-  #   plotdata <- co2_emissions %>%
-  #     filter(data_name == 'CO2 emissions', 
-  #            .data[[col_to_filter]] == input$smryplot_viewby, 
-  #            state == input$smryplot_state) %>% 
-  #     mutate(tooltip = paste0(round(value, 1), ' ', period, ' (', unitsshort, ')'))
-  # 
-  #   
-  #   plt <- ggplot(plotdata, aes(x = period, y = value, color = .data[[col_to_group]] )) +
-  #     geom_point_interactive(aes(tooltip = tooltip, data_id = .data[[col_to_group]] ), alpha = 0.6) + 
-  #     # geom_point_interactive(aes(tooltip = paste0(round(value, 1), ' ', unitsshort, ' (', period, ')'),
-  #     #                            data_id = .data[[col_to_group]] ),
-  #     #                        alpha = 0.6) +
-  #     geom_textsmooth(aes(label = .data[[col_to_group]]),
-  #                         method = 'loess', formula = y ~ x, se = F, span = 0.3,
-  #                         linewidth = 1, hjust = 'auto') +
-  #     labs(x = 'Year', y = 'CO2 (million metric tons)',
-  #          title = paste0('CO2 Emissions For ', input$smryplot_viewby, ' Usage'),
-  #          subtitle = input$smryplot_state) +
-  #     theme_bw(base_family = 'Arial') +
-  #     theme(legend.position = 'none',
-  #           text = element_text(size = 12))
-  # 
-  #   girafe(
-  #     ggobj = plt,
-  #     options = list(
-  #       opts_hover_inv(css = 'opacity:0.3;'),
-  #       opts_selection(type = 'single')
-  #     )
-  #   )
-  # })
-
-  
-
+  productionServer('production', production)
+  co2EmissionsServer('co2_emissions', co2_emissions)
 }

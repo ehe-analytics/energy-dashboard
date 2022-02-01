@@ -1,18 +1,18 @@
 # Summary tab CO2 emissions module
-co2_emissions <- readr::read_rds(here::here('data/co2_emissions.rds'))
 
 #' Inputs for CO2 summary plots interface
 #' 
 #' @param id, character used to specify name space
-#' @param choices, state choices to display
+#' @param states, state choices to display
 #' 
 #' \describe{
 #'   \item{smryplot_trendby}{user input for trends options between Fuel and Sector}
 #'   \item{smryplot_viewby}{user input filter based on trends options selected. This is updated in the server function}
 #'   \item{smryplot_state}{list of states/regions}
 #'   \item{smryplot}{CO2 emissions summary plot output based on the parameters provided by user}
-#' } takes three user inputs: trend_by, view_by, and state
-co2EmissionsUI <- function(id) { 
+#' } 
+#' 
+co2EmissionsUI <- function(id, states) { 
   ns <- NS(id)
   
   tabPanel(
@@ -24,7 +24,7 @@ co2EmissionsUI <- function(id) {
     # inputs
     column(3, selectizeInput(ns('smryplot_trendby'), label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
     column(3, selectizeInput(ns('smryplot_viewby'), label = NULL, choices = c('Select filter' = ''))), 
-    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', unique(co2_emissions$state)))), 
+    column(3, selectizeInput(ns('smryplot_state'), label = NULL, choices = c('Select state' = '', states))), 
     
     # output
     ggiraphOutput(ns('smryplot'), width = '100%', height = '600px')
@@ -33,7 +33,7 @@ co2EmissionsUI <- function(id) {
 
 
 #' Server-side processing for updating inputs and generating co2 emissions summary plot
-co2EmissionsServer <- function(id) { 
+co2EmissionsServer <- function(id, dat) { 
 
   moduleServer(
     id, 
@@ -44,9 +44,9 @@ co2EmissionsServer <- function(id) {
         req(input$smryplot_trendby) 
 
         choices <- if (input$smryplot_trendby == 'Fuel') {
-          unique(co2_emissions$category)
+          unique(dat$category)
         } else if (input$smryplot_trendby == 'Sector') { 
-          unique(co2_emissions$series)
+          unique(dat$series)
         }
         selected <- isolate(input$smryplot_viewby)
         updateSelectizeInput(session, 'smryplot_viewby', selected = selected, choices = choices, server = T)
@@ -67,9 +67,8 @@ co2EmissionsServer <- function(id) {
           input$smryplot_trendby == 'Fuel' ~ 'series', 
           input$smryplot_trendby == 'Sector' ~ 'category') 
         
-        plotdata <- co2_emissions %>%
-          filter(data_name == 'CO2 emissions',
-                 .data[[col_to_filter]] == input$smryplot_viewby, 
+        plotdata <- dat %>%
+          filter(.data[[col_to_filter]] == input$smryplot_viewby, 
                  state == input$smryplot_state) %>% 
           mutate(tooltip = paste0(round(per_capita, 1), ' metric tons CO2 (', period, ')'))
         

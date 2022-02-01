@@ -42,21 +42,8 @@ ui <- navbarPage(
     tabsetPanel(
       id = 'smrytabs', 
       
-      co2EmissionsUI('co2_emissions'),
-      # tabPanel(
-      #   'CO2 Emissions',
-      #   tags$h5('Choose a state below to see carbon dioxide emissions trends. You may also select US for the whole country.'),
-      #   tags$h5("Carbon dioxide emissions in the EIA databsae are reported by five different sectors: ",
-      #           "commercial, electric power, industrial, residential, transportation, and from all sectors combined."),
-      #   column(3, selectizeInput('smryplot_trendby', label = NULL, choices = c('Trend by' = '', 'Fuel', 'Sector'))),
-      #   column(3, selectizeInput('smryplot_viewby', label = NULL, choices = c('Select filter' = ''))),
-      #   column(3, selectizeInput('smryplot_state', label = NULL, choices = c('Select state' = '', unique(co2_emissions$state)))),
-      #   ggiraphOutput('smryplot_co2', width = '100%', height = '600px')
-      # ),
-      
-      tabPanel(
-        'Tab 2'
-      )
+      productionUI('production', unique(production$series), unique(production$state)),
+      co2EmissionsUI('co2_emissions', unique(co2_emissions$state))
     )
   ), 
   
