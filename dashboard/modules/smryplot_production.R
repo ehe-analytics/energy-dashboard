@@ -50,7 +50,7 @@ productionServer <- function(id, dat) {
           geom_textsmooth(aes(label = series), 
                           method = 'loess', formula = y ~ x, se = F, span = 0.3, 
                           linewidth = 1, hjust = 'auto', alpha = 0.8) +
-          labs(x = 'Year', y = 'Billion Btu', 
+          labs(x = 'Year', y = 'Million Btu', 
                title = paste0('Per Capita ', input$smryplot_viewby, ' Energy production'), 
                subtitle = input$smryplot_state) +
           theme_bw(base_family = 'Arial') + 
