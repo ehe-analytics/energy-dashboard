@@ -34,7 +34,8 @@ co2_emissions <- eia_data %>%
   left_join(state_pop %>% select(-state), by = 'state_abb') %>% 
   mutate(population = ifelse(is.na(population), sum(state_pop$population), population), 
          per_capita = value*1e6/population, 
-         per_capita_units = 'metric ton CO2') %>% 
+         per_capita_units = 'metric ton') %>% 
+  mutate_at(vars(units, unitsshort), function (x) str_squish(str_replace_all(x, ' CO2', ''))) %>% 
   select(-iso3166, -geography, -copyright) 
 write_rds(co2_emissions, 'data/co2_emissions.rds')
 
@@ -45,10 +46,11 @@ eids <- c("BDFDB", "BDPRP", "BFFDB", "BFPRP", "CLPRB", "EMFDB", "ENPRP", "NCPRB"
 
 production <- eia_data %>% 
   filter(str_detect(series_id, paste0(eids, collapse = '|'))) %>% 
-  separate(name, c('series', 'category', 'state'), sep = ', ') %>% 
+  separate(name, c('series', 'temp', 'state'), sep = ', ') %>% 
   mutate(data_name = 'Energy production', 
-         state = ifelse(is.na(state), category, state)) %>% 
-  select(-category) %>% 
+         category = 'All fuels',
+         state = ifelse(is.na(state), temp, state)) %>% 
+  select(-temp) %>% 
   left_join(state_pop, by = 'state') %>% 
   mutate(
     population = ifelse(is.na(population), sum(state_pop$population), population), 

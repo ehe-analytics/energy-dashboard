@@ -8,11 +8,10 @@ ui <- navbarPage(
     
     # useShinyjs(), 
     # includeScript('script.js'),
+    div( tags$head(includeCSS('styles.css')) ),
     
     div(
       class = 'outer',
-      tags$head(includeCSS('styles.css')),
-      
       mapdeckOutput('map', width = '100%', height = '100%')
     ),
     
@@ -23,12 +22,11 @@ ui <- navbarPage(
       left = 'auto', right = 20, bottom = 'auto', width = 250, height = 'auto', 
       
       h3('Map Tools', icon('map')), 
-      selectizeInput('mapdata_name', label = NULL, choices = c('Select data type' = '', unique(co2_emissions$data_name))), 
+      selectizeInput('mapdata_name', label = NULL, choices = c('Select data type' = '', 'Energy production', 'CO2 emissions')), 
       selectizeInput('mapdata_cat', label = NULL, choices = c('Select data category' = '')),
       selectizeInput('mapdata_series', label = NULL, choices = c('Select data series' = '')), 
       radioButtons('mapdata_smry', label = NULL, choices = c("Per capita", "Total quantity"), selected = "Per capita", inline = T)
     )
-  
   ), 
   
   ## SUMMARY CHARTS ----------------------------------------------------------

@@ -9,7 +9,12 @@ server <- function(input, output, session) {
   observe({
     req(input$mapdata_name)
 
-    rvs$mapdata_name <- co2_emissions %>% filter(data_name == input$mapdata_name)
+    rvs$mapdata_name <- if(input$mapdata_name == 'Energy production') 
+      production
+    else if(input$mapdata_name == 'CO2 emissions')
+      co2_emissions
+
+    rvs$mapdata_name
   })
   
   # update CATEGORY dropdown choices based on selected data type
@@ -35,20 +40,36 @@ server <- function(input, output, session) {
   observe({
     req(input$mapdata_cat)
     req(rvs$mapdata_cat)
-
+    
     choices  <-  unique(rvs$mapdata_cat$series)
     selected <- isolate(input$mapdata_series)
     updateSelectizeInput(session, 'mapdata_series', selected = selected, choices = choices, server = T)
   })
   
   # Filter data for the SERIES type chosen
-  observe({ 
+  observe({
+    req(rvs$mapdata_cat)
     req(input$mapdata_series)
     
-    rvs$mapdata_series <- rvs$mapdata_cat %>% 
-      filter(series == input$mapdata_series) 
+    mapdata <- rvs$mapdata_cat %>% 
+      filter(series == input$mapdata_series) %>% 
+      filter(period == max(period)) %>% 
+      right_join(sf_states, by = c('state_abb', 'geoid')) %>% 
+      mutate(tooltip = paste0('<i>', state, '</i>', '<br>',
+                              data_name, ' in ', period, '<br>',
+                              input$mapdata_cat, '; ', input$mapdata_series, '<br>'))
+    
+    sf::st_geometry(mapdata) <- mapdata$geometry
+    
+    cols_to_use <- if (input$mapdata_smry == "Per capita") 
+      list(value = 'per_capita', units = 'per_capita_units') 
+    else list(value = 'value', units = 'units') 
+      
+    rvs$mapdata_series <- mapdata %>%
+      arrange(desc( .data[[cols_to_use$value]] )) %>% 
+      mutate(rank = 1:n()) %>% 
+      mutate(tooltip = paste0(tooltip, round(.data[[cols_to_use$value]], 2), ' ', .data[[cols_to_use$units]], ' (#', rank, ')'))
   })
-  
   
   #### Map ---------------------------------------------------------------------
   output$map <- renderMapdeck({ 
@@ -58,49 +79,26 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(input$mapdata_series)
+    req(input$mapdata_series) 
+    req(rvs$mapdata_series)
     
     # Palette
     pal <- colorRamp(c("#00AFBB", "#E7B800", "#FC4E07"), alpha = T)((1:256)/256)
     pal[, 4] <- pal[, 4]*0.8
     
-    # Data for mapping
-    mapdata <- rvs$mapdata_series %>% 
-      filter(period == max(period)) %>% 
-      right_join(sf_states, by = c('state_abb', 'geoid'))
-    sf::st_geometry(mapdata) <- mapdata$geometry
-    
-    # Variables
     if (input$mapdata_smry == "Per capita") {
       fill_colour <- 'per_capita' 
-      mapdata <- mapdata %>%
-        arrange(desc(per_capita)) %>% 
-        mutate(rank = 1:n()) %>% 
-        mutate(tooltip = paste0('<i>', state, '</i>', '<br>',
-                                ' CO2 emissions in ', period, '<br>',
-                                input$mapdata_cat, '; ', input$mapdata_series, '<br>',
-                                round(per_capita, 1), ' metric tons per capita (#', rank, ')'))
-      legend_options <- list(title = paste0(unique(mapdata$per_capita_units)))
+      legend_options <- list(title = paste0(unique(rvs$mapdata_series$per_capita_units)))
     } else if (input$mapdata_smry == 'Total quantity') {
       fill_colour <- 'value'
-      mapdata <- mapdata %>% 
-        arrange(desc(value)) %>% 
-        mutate(rank = 1:n()) %>% 
-        mutate(tooltip = paste0('<i>', state, '</i>', '<br>',
-                                ' CO2 emissions in ', period, '<br>',
-                                input$mapdata_cat, '; ', input$mapdata_series, '<br>',
-                                round(value, 1), ' million metric tons', ' (#', rank, ')'))
-      legend_options <- list(title = paste0('Total ', unique(mapdata$units)))
-    } else {
-      stop('This option does not exist.')
-    }
-    
+      legend_options <- list(title = paste0('Total ', unique(rvs$mapdata_series$units)))
+    } 
     
     # Map
     mapdeck_update(map_id = 'map') %>%
       clear_polygon('statefill') %>%
       add_polygon(
-        mapdata,
+        rvs$mapdata_series,
         fill_colour = fill_colour, 
         stroke_colour = '#FFFFFF',
         stroke_width = 2000,
@@ -114,6 +112,7 @@ server <- function(input, output, session) {
         legend_options = legend_options,
         layer_id = 'statefill'
       )
+    
   })
   
   
